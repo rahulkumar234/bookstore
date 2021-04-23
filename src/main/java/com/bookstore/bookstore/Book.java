@@ -2,14 +2,27 @@ package com.bookstore.bookstore;
 
 import lombok.Data;
 
-@Data
+import javax.persistence.*;
+
+@Entity
+@Table(name="bookstore")
 public class Book {
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    Integer id;
+    @Column(name = "name")
     String name;
+    @Column(name = "description")
     String description;
+    @Column(name = "author")
     String author;
+    @Column(name = "type")
     BookTypeEnum type;
+    @Column(name = "price")
     String price;
+    @Column(name = "isbn")
     String isbn;
+    @Column(name = "promocode")
     String promoCode;
 
     public String getName() {

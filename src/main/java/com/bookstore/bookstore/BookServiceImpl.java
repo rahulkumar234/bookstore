@@ -1,13 +1,17 @@
 package com.bookstore.bookstore;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-@AllArgsConstructor
+@Service
 public class BookServiceImpl implements BookService {
+    @Autowired
     private BookRepository bookRepository;
 
     @Override
@@ -18,15 +22,15 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public String checkOut(List<String> bookNames, String promoCode) {
-        List<Book> books = bookRepository.getBookByNames(bookNames);
+        List<Book> books = bookRepository.getBookByNameIn(bookNames);
         if(books == null)return null;
-        return books.stream().map(book -> applyPromo(book.getPrice(), promoCode)).reduce(0.0, (x,y)-> x+y).toString();
+        return books.stream().map(book -> applyPromo(book, promoCode)).reduce(0.0, (x,y)-> x+y).toString();
 
     }
 
-    private Double applyPromo(String price, String promoCode) {
-        if(promoCode == null) return Double.valueOf(price);
+    private Double applyPromo(Book book, String promoCode) {
+        if(promoCode == null || !promoCode.equalsIgnoreCase(book.getPromoCode())) return Double.valueOf(book.getPrice());
         Integer disc = BookDiscount.getDiscountMap().get(promoCode) == null ? 0 : BookDiscount.getDiscountMap().get(promoCode);
-        return Double.valueOf(price) - ((Double.valueOf(price) * disc) / 100);
+        return Double.valueOf(book.getPrice()) - ((Double.valueOf(book.getPrice()) * disc) / 100);
     }
 }
